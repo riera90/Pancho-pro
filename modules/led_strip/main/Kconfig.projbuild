@@ -1,0 +1,73 @@
+menu "Node Configuration"
+
+    menu "Generic Node Configuration"
+
+        config TAG
+            string "node tag"
+            default "led strip"
+            help
+                A name given to the node
+
+
+        config WIFI_SSID
+            string "WiFi SSID"
+            default "myssid"
+            help
+                SSID (network name) for the example to connect to.
+
+        config WIFI_PASSWORD
+            string "WiFi Password"
+            default "mypassword"
+            help
+                WiFi password (WPA or WPA2) for the example to use.
+
+        config BROKER_URL
+            string "Broker URL"
+            default "mqtt://iot.eclipse.org"
+            help
+                URL of the broker to connect to
+
+        config BROKER_PORT
+            int "Broker port"
+            default 7707
+            help
+                The port listening in the broker server
+
+        config BROKER_QOS
+            int "Broker qos"
+            default 0
+            help
+                the broker quality of service
+
+        config BROKER_USER
+            string "Broker user"
+            default "admin"
+            help
+                the broker username
+
+        config BROKER_PASSWORD
+            string "Broker password"
+            default "secret"
+            help
+                the broker password fot the provided username
+
+        config BROKER_URL_FROM_STDIN
+            bool
+            default y if BROKER_URL = "FROM_STDIN"
+
+    endmenu
+
+    
+
+    menu "Specific Node Configuration"
+
+        config MQTT_SUBSCRIBED_TOPIC
+            string "Broker topic"
+            default "/bedroom/station/led"
+            help
+                the topic where the node will be listening for commands
+
+    endmenu
+
+endmenu
+

@@ -1,0 +1,8 @@
+version: "3"
+services:
+  mqtt_broker:
+    build: .
+    hostname: mqtt_broker
+    ports:
+      - 0.0.0.0:7707:7707
+    restart: always
