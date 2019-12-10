@@ -11,7 +11,7 @@
 #define TAG CONFIG_TAG
 
 
-void config_web_server_init(httpd_uri_t** httpd_uri, uint16_t size) {
+httpd_handle_t config_web_server_init(httpd_uri_t** httpd_uri, uint16_t size) {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
@@ -32,4 +32,4 @@ void config_web_server_init(httpd_uri_t** httpd_uri, uint16_t size) {
     return NULL;
 }
 
-#endif _PANCHO_WEB_SERVER_H_
+#endif // _PANCHO_WEB_SERVER_H_

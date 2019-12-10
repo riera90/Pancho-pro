@@ -46,4 +46,4 @@ void spiffs_end(void) {
 }
 
 
-#endif _PANCHO_SPIFFS_H_
+#endif // _PANCHO_SPIFFS_H_

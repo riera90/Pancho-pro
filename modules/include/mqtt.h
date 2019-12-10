@@ -86,7 +86,6 @@ static void mqtt_init(void) {
     esp_log_level_set("TRANSPORT_SSL", ESP_LOG_VERBOSE);
     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
     esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
-
         
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = BROKER_URL,
@@ -97,9 +96,7 @@ static void mqtt_init(void) {
     };
 
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
-    // esp_mqtt_client_set_uri(client, BROKER_URL);
     esp_mqtt_client_start(client);
-    ESP_LOGE(TAG, "test3");
 }
 
-#endif
+#endif // _PANCHO_MQTT_H_

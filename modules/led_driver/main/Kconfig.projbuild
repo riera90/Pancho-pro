@@ -59,7 +59,7 @@ menu "Node Configuration"
 
         config TAG
             string "node tag"
-            default "led strip"
+            default "led driver"
             help
                 A name given to the node
 

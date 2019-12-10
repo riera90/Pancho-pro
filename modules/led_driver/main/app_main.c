@@ -61,8 +61,7 @@ bool load_node_configuration(void) {
     }
     ESP_LOGI(TAG, "Loading configuration from config file");
 
-    int size = 255;
-    char* line[255];
+    char line[255];
     char* pos;
 
     fgets(STA_WIFI_SSID, sizeof(STA_WIFI_SSID), conf);
@@ -70,18 +69,6 @@ bool load_node_configuration(void) {
 
     fgets(STA_WIFI_PASSWORD, sizeof(STA_WIFI_PASSWORD), conf);
     pos = strchr(STA_WIFI_PASSWORD, '\n'); if (pos) *pos = '\0';
-
-
-    // fgets(AP_WIFI_SSID, sizeof(AP_WIFI_SSID), conf);
-    // pos = strchr(AP_WIFI_SSID, '\n'); if (pos) *pos = '\0';
-
-    // fgets(AP_WIFI_PASSWORD, sizeof(AP_WIFI_PASSWORD), conf);
-    // pos = strchr(AP_WIFI_PASSWORD, '\n'); if (pos) *pos = '\0';
-
-    // fgets(line, sizeof(line), conf);
-    // pos = strchr(line, '\n'); if (pos) *pos = '\0';
-    // AP_WIFI_STA_CONN = atoi(line);
-
 
     fgets(BROKER_URL, sizeof(BROKER_URL), conf);
     pos = strchr(BROKER_URL, '\n'); if (pos) *pos = '\0';
@@ -212,8 +199,8 @@ char* decode_web_param(char * param) {
                 param[i] = '\\';
             if (param[i+1] == '7' && param[i+2] == 'E')
                 param[i] = '~';
-            if (param[i+1] == 'A' && param[i+2] == '3')
-                param[i] = '€';
+            //if (param[i+1] == 'A' && param[i+2] == '3')
+            //    param[i] = "€";
             max-=2;
             for (size_t j = i+1; j < max; j++)
                 param[j] = param[j+2];
@@ -305,45 +292,75 @@ esp_err_t configuration_handler(httpd_req_t *req) {
     itoa(BROKER_PORT, broker_port_char, 10);
     ESP_LOGI(TAG,"port string %s", broker_port_char);
     ESP_LOGI(TAG,"port int %i", BROKER_PORT);
-    const char resp_str [1024] = "\0";
-    strcat(resp_str,
-        "<meta charset='utf-8'>"\
-        "<style>"\
-            "label {display: inline-block; width: 150px; text-align: right;}"\
-        "</style>"\
-        "<form method='post'>"\
-            "<div>"\
-                "<label for='STA_WIFI_SSID'>wifi name:</label>"\
-                "<input type='text' name='STA_WIFI_SSID' value='"CONCAT STA_WIFI_SSID ENDCONCAT"'>"\
-            "</div>"\
-            "<div>"\
-                "<label for='STA_WIFI_PASSWORD'>wifi password:</label>"\
-                "<input type='text' name='STA_WIFI_PASSWORD' value='"CONCAT STA_WIFI_PASSWORD ENDCONCAT"'>"\
-            "</div>"\
-            "<div>"\
-                "<label for='BROKER_URL'>mqtt server ip:</label>"\
-                "<input type='text' name='BROKER_URL' value='"CONCAT BROKER_URL ENDCONCAT"'>"\
-            "</div>"\
-            "<div>"\
-                "<label for='BROKER_PORT'>mqtt server port:</label>"\
-                "<input type='number' name='BROKER_PORT' value='"CONCAT broker_port_char ENDCONCAT"'>"\
-            "</div>"\
-            "<div>"\
-                "<label for='BROKER_USER'>mqtt username:</label>"\
-                "<input type='text' name='BROKER_USER' value='"CONCAT BROKER_USER ENDCONCAT"'>"\
-            "</div>"\
-            "<div>"\
-                "<label for='BROKER_PASSWORD'>mqtt password:</label>"\
-                "<input type='text' name='BROKER_PASSWORD' value='"CONCAT BROKER_PASSWORD ENDCONCAT"'>"\
-            "</div>"\
-            "<div>"\
-                "<input type='submit' value='Submit'>"\
-            "</div>"\
-        "</form>"
-    );
-    strcat(resp_str,
-        req->user_ctx
-    );
+
+    char resp_str [1024];
+    char resp_str_aux [255];
+
+    strcpy(resp_str, (char * restrict)"<meta charset='utf-8'><style>label {display: inline-block; width: 150px; text-align: right;}</style><form method='post'><div><label for='STA_WIFI_SSID'>wifi name:</label><input type='text' name='STA_WIFI_SSID' value='\0");
+    strcat(resp_str, STA_WIFI_SSID);
+    
+    strcpy(resp_str_aux, (char * restrict)"'></div><div><label for='STA_WIFI_PASSWORD'>wifi password:</label><input type='text' name='STA_WIFI_PASSWORD' value='\0");
+    strcat(resp_str, resp_str_aux);
+    strcat(resp_str, STA_WIFI_PASSWORD);
+    
+    strcpy(resp_str_aux, (char * restrict)"'></div><div><label for='BROKER_URL'>mqtt server ip:</label><input type='text' name='BROKER_URL' value='\0");
+    strcat(resp_str, resp_str_aux);
+    strcat(resp_str, BROKER_URL);
+    
+    strcpy(resp_str_aux, (char * restrict)"'></div><div><label for='BROKER_PORT'>mqtt server port:</label><input type='number' name='BROKER_PORT' value='\0");
+    strcat(resp_str, resp_str_aux);
+    strcat(resp_str, broker_port_char);
+    
+    strcpy(resp_str_aux, (char * restrict)"'></div><div><label for='BROKER_USER'>mqtt username:</label><input type='text' name='BROKER_USER' value='\0");
+    strcat(resp_str, resp_str_aux);
+    strcat(resp_str, BROKER_USER);
+    
+    strcpy(resp_str_aux, (char * restrict)"'></div><div><label for='BROKER_PASSWORD'>mqtt password:</label><input type='text' name='BROKER_PASSWORD' value='\0");
+    strcat(resp_str, resp_str_aux);
+    strcat(resp_str, BROKER_PASSWORD);
+
+    strcpy(resp_str_aux, (char * restrict)"'></div><div><input type='submit' value='Submit'></div></form>\0");
+    strcat(resp_str, resp_str_aux);
+
+    /*
+    the web page:
+
+    <meta charset='utf-8'>
+    <style>
+        label {display: inline-block; width: 150px; text-align: right;}
+    </style>
+    <form method='post'>
+        <div>
+            <label for='STA_WIFI_SSID'>wifi name:</label>
+            <input type='text' name='STA_WIFI_SSID' value='"STA_WIFI_SSID"'>
+        </div>
+        <div>
+            <label for='STA_WIFI_PASSWORD'>wifi password:</label>
+            <input type='text' name='STA_WIFI_PASSWORD' value='"STA_WIFI_PASSWORD"'>
+        </div>
+        <div>
+            <label for='BROKER_URL'>mqtt server ip:</label>
+            <input type='text' name='BROKER_URL' value='"BROKER_URL"'>
+        </div>
+        <div>
+            <label for='BROKER_PORT'>mqtt server port:</label>
+            <input type='number' name='BROKER_PORT' value='"broker_port_char"'>
+        </div>
+        <div>
+            <label for='BROKER_USER'>mqtt username:</label>
+            <input type='text' name='BROKER_USER' value='"BROKER_USER"'>
+        </div>
+        <div>
+            <label for='BROKER_PASSWORD'>mqtt password:</label>
+            <input type='text' name='BROKER_PASSWORD' value='"BROKER_PASSWORD"'>
+        </div>
+        <div>
+            <input type='submit' value='Submit'>
+        </div>
+    </form>"
+    */
+    
+    
     ESP_LOGI(TAG, "web: sending web page");
 
     httpd_resp_send(req, resp_str, strlen(resp_str));

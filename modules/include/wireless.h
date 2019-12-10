@@ -152,4 +152,4 @@ void wifi_init_sta() {
     ESP_LOGI(TAG, "wifi: connect to ap SSID:%s password:%s", STA_WIFI_SSID, STA_WIFI_PASSWORD);
 }
 
-#endif
+#endif // _PANCHO_WIRELESS_H_
