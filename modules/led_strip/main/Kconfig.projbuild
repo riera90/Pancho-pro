@@ -2,24 +2,66 @@ menu "Node Configuration"
 
     menu "Generic Node Configuration"
 
+        menu "wireless AP configuration"
+
+            config AP_WIFI_SSID
+                string "AP WiFi SSID"
+                default "myssid"
+                help
+                    SSID (network name) for the configuration web server.
+
+            config AP_WIFI_PASSWORD
+                string "AP WiFi Password"
+                default "mypassword"
+                help
+                    WiFi password (WPA or WPA2) for the configuration web server
+
+        endmenu
+
+
+        menu "wireless STA configuration"
+
+            config STA_WIFI_SSID
+                string "STA WiFi SSID"
+                default "myssid"
+                help
+                    SSID (network name).
+
+            config STA_WIFI_PASSWORD
+                string "STA WiFi Password"
+                default "mypassword"
+                help
+                    WiFi password (WPA or WPA2).
+            
+            config AP_WIFI_STA_CONN
+                int "max clients"
+                default 3
+                help
+                    max client connections to the AP
+
+        endmenu
+
+        menu "SPIFFS configuration"
+
+            config SPIFFS_BASE_PATH
+                string "base path for spiffs files"
+                default "/config"
+                help
+                    base path for spiffs files.
+
+            config SPIFFS_MAX_FILES
+                int "Max files inside the base path"
+                default 2
+                help
+                    max munber of files in the base path of the spiffs
+
+        endmenu
+
         config TAG
             string "node tag"
             default "led strip"
             help
                 A name given to the node
-
-
-        config WIFI_SSID
-            string "WiFi SSID"
-            default "myssid"
-            help
-                SSID (network name) for the example to connect to.
-
-        config WIFI_PASSWORD
-            string "WiFi Password"
-            default "mypassword"
-            help
-                WiFi password (WPA or WPA2) for the example to use.
 
         config BROKER_URL
             string "Broker URL"
