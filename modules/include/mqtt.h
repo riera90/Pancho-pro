@@ -27,14 +27,28 @@
 #define TAG CONFIG_TAG
 
 char BROKER_URL[255];
-int BROKER_PORT;
+uint16_t BROKER_PORT;
 char BROKER_USER[255];
 char BROKER_PASSWORD[255];
 
+/**
+ * \brief Function declaration for the MQTT command/event handler for the specific node application
+ * \param event the MQTT event
+ */
 void command_handler(esp_mqtt_event_handle_t event);
 
+/**
+ * \brief Function declaration for the MQTT topic subscription process for the specific node application
+ * \param client the MQTT client
+ */
 void initialize_topic_subscriptions(esp_mqtt_client_handle_t client);
 
+/**
+ * \brief MQTT topic subscription handler
+ * \param client the MQTT client
+ * \param topic
+ * \param qos the quality of service to follow
+ */
 void mqtt_subscribe_to_topic(esp_mqtt_client_handle_t client, char* topic, int qos) {
     int msg_id = esp_mqtt_client_subscribe(client, topic, qos);
     ESP_LOGI(TAG, "mqtt: sent subscribe successful, msg_id=%d", msg_id);

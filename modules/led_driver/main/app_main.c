@@ -21,9 +21,6 @@
 #include "../../include/spiffs.h"
 #include "../../include/web_server.h"
 
-#define CONCAT );strcat(resp_str, 
-#define ENDCONCAT );strcat(resp_str,
-
 #define PWM_0_OUT_IO_NUM 15 // red
 #define PWM_1_OUT_IO_NUM 12 // green
 #define PWM_2_OUT_IO_NUM 13 // blue
@@ -36,20 +33,25 @@
 
 #define TAG CONFIG_TAG
 
-bool load_node_configuration(void) {
+/**
+ * \brief Loads the node configuration in the node
+ * \details The configuration is loaded from the user defined spiffs vfile, if there is no such configuration file, the default values are loaded instead
+ * \param path Path to the configuration spiffs vfile
+ * \return status boolean
+ * \retval TRUE the configuration was loaded from the spiffs vfile
+ * \retval FALSE the configuration was loaded from the default configuration
+ */
+bool load_node_configuration(const char* path) {
     // initializes the spiffs virtual file system
     spiffs_init();
 
-    FILE* conf = fopen("/spiffs/configuration.txt", "r");
+    FILE* conf = fopen(path, "r");
     if (conf == NULL) {
+        // the configuration file was not found, load the default values
         ESP_LOGI(TAG, "Failed to open configuration file, fallback to default values");
 
         strcpy(STA_WIFI_SSID, CONFIG_STA_WIFI_SSID);
         strcpy(STA_WIFI_PASSWORD, CONFIG_STA_WIFI_PASSWORD);
-        
-        // strcpy(AP_WIFI_SSID, CONFIG_AP_WIFI_SSID);
-        // strcpy(AP_WIFI_PASSWORD, CONFIG_AP_WIFI_PASSWORD);
-        // AP_WIFI_STA_CONN = CONFIG_AP_WIFI_STA_CONN;
 
         strcpy(BROKER_URL, CONFIG_BROKER_URL);
         BROKER_PORT = CONFIG_BROKER_PORT;
@@ -59,6 +61,7 @@ bool load_node_configuration(void) {
         spiffs_end();
         return false;
     }
+    // load the configration from the spiffs file
     ESP_LOGI(TAG, "Loading configuration from config file");
 
     char line[255];
@@ -90,11 +93,20 @@ bool load_node_configuration(void) {
     return true;
 }
 
-bool save_node_configuration(void) {
+
+/**
+ * \brief Saves the current configuration of the node to the spiffs vfile
+ * \warning the configuration does not neccesary needs to be the running configuration, until the module is not reset, it will not be set up in the current configuration
+ * \param path Path to the configuration spiffs vfile
+ * \return Status boolean
+ * \retval TRUE success
+ * \retval FALSE error, the file could not be opened
+ */
+bool save_node_configuration(const char* path) {
     // initializes the spiffs virtual file system
     spiffs_init();
 
-    FILE* conf = fopen("/spiffs/configuration.txt", "w");
+    FILE* conf = fopen(path, "w");
     if (conf == NULL) {
         ESP_LOGE(TAG, "config: Failed to open configuration file in write mode");
         esp_vfs_spiffs_unregister(NULL);
@@ -120,14 +132,21 @@ bool save_node_configuration(void) {
     return true;
 }
 
-
-bool reset_node_configuration(void) {
+/**
+ * \brief Removes the user defined configuration
+ * \warning the running configuration will not be changed unless the node is reset
+ * \param path Path to the configuration spiffs vfile
+ * \return Status boolean
+ * \retval TRUE success
+ * \retval FALSE error, the file could not be found or deleted
+ */
+bool reset_node_configuration(const char* path) {
     // initializes the spiffs virtual file system
     spiffs_init();
 
     struct stat st;
-    if (stat("/spiffs/configuration.txt", &st) == 0) {
-        unlink("/spiffs/configuration.txt");
+    if (stat(path, &st) == 0) {
+        unlink(path);
         ESP_LOGI(TAG, "config: configuration has been reset");
         spiffs_end();
         return true;
@@ -138,7 +157,11 @@ bool reset_node_configuration(void) {
     return false;
 }
 
-
+/**
+ * \brief decodes a string from the http standar i utf8 to utf8
+ * \return new string
+ * \warning the string length could be changed
+ */
 char* decode_web_param(char * param) {
     size_t max = strlen(param);
     size_t i = 0;
@@ -282,7 +305,7 @@ esp_err_t configuration_post_handler(httpd_req_t *req) {
 
     httpd_resp_send(req, response, strlen(response));
     // httpd_resp_send_chunk(req, response, strlen(response));
-    save_node_configuration();
+    save_node_configuration("/spiffs/configuration.txt");
     return ESP_OK;
 }
 
@@ -290,8 +313,6 @@ esp_err_t configuration_handler(httpd_req_t *req) {
     ESP_LOGI(TAG, "web: building web page");
     char broker_port_char[8];
     itoa(BROKER_PORT, broker_port_char, 10);
-    ESP_LOGI(TAG,"port string %s", broker_port_char);
-    ESP_LOGI(TAG,"port int %i", BROKER_PORT);
 
     char resp_str [1024];
     char resp_str_aux [255];
@@ -391,18 +412,20 @@ uint32_t duties[3] = {
     0, 0, 0
 };
 
-uint32_t new_duties[3] = {0, 0, 0};
+uint32_t new_duties[3] = {
+    0, 0, 0
+};
 
 int16_t phase[3] = {
     0, 0, 0
 };
 
-void change_to_new_pwm_duties() {
+void change_to_new_pwm_duties(void) {
     int32_t difference_per_cicle[3];
     for (size_t i = 0; i < 3; i++)
         difference_per_cicle[i] = (int32_t) (((int16_t)new_duties[i] - (int16_t)duties[i]) / 50);
 
-    ESP_LOGI(TAG, "difference_per_cicle: r:%i g:%i g:%i", difference_per_cicle[0], difference_per_cicle[1], difference_per_cicle[2]);
+    ESP_LOGI(TAG, "difference_per_cicle: r:%i g:%i b:%i", difference_per_cicle[0], difference_per_cicle[1], difference_per_cicle[2]);
     
     for (size_t i = 0; i < 50; i++)
     {
@@ -411,7 +434,7 @@ void change_to_new_pwm_duties() {
         
         pwm_set_duties(duties);
         pwm_start(); // restart them with new configuration
-        ESP_LOGI(TAG, "pwm duties: r:%u g:%u g:%u", duties[0], duties[1], duties[2]);
+        ESP_LOGI(TAG, "pwm duties: r:%u g:%u b:%u", duties[0], duties[1], duties[2]);
         vTaskDelay( (2000/50) / portTICK_RATE_MS);
     }
     
@@ -455,7 +478,7 @@ void initialize_topic_subscriptions(esp_mqtt_client_handle_t client) {
 }
 
 
-void app_main() {
+void app_main(void) {
     pwm_init(PWM_PERIOD, duties, 3, pin_num);
     pwm_set_phases(phase);
     pwm_start();
@@ -472,9 +495,9 @@ void app_main() {
     }
     ESP_ERROR_CHECK(ret);
 
-    // reset_node_configuration();
+    reset_node_configuration("/spiffs/configuration.txt");
 
-    if (load_node_configuration()) {
+    if (load_node_configuration("/spiffs/configuration.txt")) {
         ESP_LOGI(TAG, "entering sta conf");
         wifi_init_sta();
         mqtt_init();
