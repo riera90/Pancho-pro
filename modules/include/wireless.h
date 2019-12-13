@@ -101,6 +101,7 @@ static esp_err_t wifi_event_handler(void *ctx, system_event_t *event) {
 
 void wifi_init_softap() {
     wifi_event_group = xEventGroupCreate();
+    wifi_config_t wifi_config = {0};
 
     tcpip_adapter_init();
 
@@ -109,7 +110,6 @@ void wifi_init_softap() {
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    wifi_config_t wifi_config = {0};
     
     strcpy((char *)wifi_config.ap.ssid, CONFIG_AP_WIFI_SSID);
     strcpy((char *)wifi_config.ap.password, CONFIG_AP_WIFI_PASSWORD);
@@ -132,6 +132,7 @@ void wifi_init_softap() {
 
 void wifi_init_sta() {
     wifi_event_group = xEventGroupCreate();
+    wifi_config_t wifi_config = {0};
 
     tcpip_adapter_init();
     
@@ -139,7 +140,6 @@ void wifi_init_sta() {
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    wifi_config_t wifi_config = {0};
     
     strcpy((char *)wifi_config.ap.ssid, STA_WIFI_SSID);
     strcpy((char *)wifi_config.ap.password, STA_WIFI_PASSWORD);

@@ -51,6 +51,7 @@ void initialize_topic_subscriptions(esp_mqtt_client_handle_t client);
  */
 void mqtt_subscribe_to_topic(esp_mqtt_client_handle_t client, char* topic, int qos) {
     int msg_id = esp_mqtt_client_subscribe(client, topic, qos);
+    
     ESP_LOGI(TAG, "mqtt: sent subscribe successful, msg_id=%d", msg_id);
 }
 
@@ -94,13 +95,7 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event) {
 }
 
 static void mqtt_init(void) {
-    esp_log_level_set("*", ESP_LOG_INFO);
-    esp_log_level_set("MQTT_CLIENT", ESP_LOG_VERBOSE);
-    esp_log_level_set("TRANSPORT_TCP", ESP_LOG_VERBOSE);
-    esp_log_level_set("TRANSPORT_SSL", ESP_LOG_VERBOSE);
-    esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
-    esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
-        
+    esp_mqtt_client_handle_t client;
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = BROKER_URL,
         .port = BROKER_PORT,
@@ -109,7 +104,14 @@ static void mqtt_init(void) {
         .event_handle = mqtt_event_handler
     };
 
-    esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+    esp_log_level_set("*", ESP_LOG_INFO);
+    esp_log_level_set("MQTT_CLIENT", ESP_LOG_VERBOSE);
+    esp_log_level_set("TRANSPORT_TCP", ESP_LOG_VERBOSE);
+    esp_log_level_set("TRANSPORT_SSL", ESP_LOG_VERBOSE);
+    esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
+    esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
+
+    client = esp_mqtt_client_init(&mqtt_cfg);
     esp_mqtt_client_start(client);
 }
 

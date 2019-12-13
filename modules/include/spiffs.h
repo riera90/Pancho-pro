@@ -11,11 +11,12 @@
 #define TAG CONFIG_TAG
 
 
-void spiffs_init(void) {    
+void spiffs_init(void) { 
+    size_t total = 0, used = 0;   
     esp_vfs_spiffs_conf_t spiffs_conf = {
-      .base_path = "/spiffs",
+      .base_path = CONFIG_SPIFFS_BASE_PATH,
       .partition_label = NULL,
-      .max_files = 5,
+      .max_files = CONFIG_SPIFFS_MAX_FILES,
       .format_if_mount_failed = true
     };
     
@@ -32,7 +33,6 @@ void spiffs_init(void) {
         return;
     }
     
-    size_t total = 0, used = 0;
     ret = esp_spiffs_info(NULL, &total, &used);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "spiffs: Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
@@ -45,5 +45,23 @@ void spiffs_end(void) {
     esp_vfs_spiffs_unregister(NULL);
 }
 
+
+bool delete_spiffs_file(const char* path) {
+    struct stat st;
+
+    // initializes the spiffs virtual file system
+    spiffs_init();
+
+    if (stat(path, &st) == 0) {
+        unlink(path);
+        ESP_LOGI(TAG, "spiffs: file %s has been deleted", path);
+        spiffs_end();
+        return true;
+    }
+
+    ESP_LOGW(TAG, "spiffs: file %s was not found", path);
+    spiffs_end();
+    return false;
+}
 
 #endif // _PANCHO_SPIFFS_H_

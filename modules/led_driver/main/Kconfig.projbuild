@@ -1,5 +1,25 @@
 menu "Node Configuration"
 
+    config TAG
+        string "node tag"
+        default "led driver"
+        help
+            A name given to the node
+
+
+
+    menu "Specific Node Configuration"
+
+        config MQTT_SUBSCRIBED_TOPIC
+            string "Broker topic"
+            default "/bedroom/station/led"
+            help
+                the topic where the node will be listening for commands
+
+    endmenu
+
+
+
     menu "Generic Node Configuration"
 
         menu "wireless AP configuration"
@@ -45,9 +65,15 @@ menu "Node Configuration"
 
             config SPIFFS_BASE_PATH
                 string "base path for spiffs files"
-                default "/config"
+                default "/spiffs"
                 help
                     base path for spiffs files.
+
+            config SPIFFS_CONFIG_FILE
+                string "spiff configuration file"
+                default "/spiffs/configuration.txt"
+                help
+                    full path for spiff configuration file.
 
             config SPIFFS_MAX_FILES
                 int "Max files inside the base path"
@@ -57,57 +83,43 @@ menu "Node Configuration"
 
         endmenu
 
-        config TAG
-            string "node tag"
-            default "led driver"
-            help
-                A name given to the node
+        menu "MQTT configuraiton"
+        
+            config BROKER_URL
+                string "Broker URL"
+                default "mqtt://iot.eclipse.org"
+                help
+                    URL of the broker to connect to
 
-        config BROKER_URL
-            string "Broker URL"
-            default "mqtt://iot.eclipse.org"
-            help
-                URL of the broker to connect to
+            config BROKER_PORT
+                int "Broker port"
+                default 7707
+                help
+                    The port listening in the broker server
 
-        config BROKER_PORT
-            int "Broker port"
-            default 7707
-            help
-                The port listening in the broker server
+            config BROKER_QOS
+                int "Broker qos"
+                default 0
+                help
+                    the broker quality of service
 
-        config BROKER_QOS
-            int "Broker qos"
-            default 0
-            help
-                the broker quality of service
+            config BROKER_USER
+                string "Broker user"
+                default "admin"
+                help
+                    the broker username
 
-        config BROKER_USER
-            string "Broker user"
-            default "admin"
-            help
-                the broker username
+            config BROKER_PASSWORD
+                string "Broker password"
+                default "secret"
+                help
+                    the broker password fot the provided username
 
-        config BROKER_PASSWORD
-            string "Broker password"
-            default "secret"
-            help
-                the broker password fot the provided username
+            config BROKER_URL_FROM_STDIN
+                bool
+                default y if BROKER_URL = "FROM_STDIN"
 
-        config BROKER_URL_FROM_STDIN
-            bool
-            default y if BROKER_URL = "FROM_STDIN"
-
-    endmenu
-
-    
-
-    menu "Specific Node Configuration"
-
-        config MQTT_SUBSCRIBED_TOPIC
-            string "Broker topic"
-            default "/bedroom/station/led"
-            help
-                the topic where the node will be listening for commands
+        endmenu
 
     endmenu
 
