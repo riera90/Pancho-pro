@@ -7,19 +7,6 @@ menu "Node Configuration"
             A name given to the node
 
 
-
-    menu "Specific Node Configuration"
-
-        config MQTT_SUBSCRIBED_TOPIC
-            string "Broker topic"
-            default "/bedroom/station/led"
-            help
-                the topic where the node will be listening for commands
-
-    endmenu
-
-
-
     menu "Generic Node Configuration"
 
         menu "wireless AP configuration"
@@ -37,7 +24,6 @@ menu "Node Configuration"
                     WiFi password (WPA or WPA2) for the configuration web server
 
         endmenu
-
 
         menu "wireless STA configuration"
 
@@ -58,6 +44,22 @@ menu "Node Configuration"
                 default 3
                 help
                     max client connections to the AP
+
+        endmenu
+
+        menu "GPIO configuration"
+
+            config FACTORY_RESET_PIN
+                int "digital pin for the user factory reset button"
+                default 4
+                help
+                    digital pin for the user factory reset button
+
+            config CONFIGURATION_MODE_PIN
+                int "digital pin for the user configuration selector switch"
+                default 5
+                help
+                    digital pin for the user configuration selector switch
 
         endmenu
 
@@ -120,6 +122,16 @@ menu "Node Configuration"
                 default y if BROKER_URL = "FROM_STDIN"
 
         endmenu
+
+    endmenu
+
+    menu "Specific Node Configuration"
+
+        config MQTT_SUBSCRIBED_TOPIC
+            string "Broker topic"
+            default "/bedroom/station/led"
+            help
+                the topic where the node will be listening for commands
 
     endmenu
 

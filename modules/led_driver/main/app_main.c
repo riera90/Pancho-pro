@@ -15,6 +15,7 @@
 #include "freertos/event_groups.h"
 
 #include "driver/pwm.h"
+#include "driver/gpio.h"
 
 #include "../../include/mqtt.h"
 #include "../../include/wireless.h"
@@ -28,7 +29,49 @@
 // PWM period 1000us(1Khz), same as depth
 #define PWM_PERIOD          (1000)
 
+// gpio pin sel for the factory reset button and the configuration switch
+#define GPIO_INPUT_PIN_SEL  (1ULL<<CONFIG_CONFIGURATION_MODE_PIN) | (1ULL<<CONFIG_FACTORY_RESET_PIN)
+
 #define TAG CONFIG_TAG
+
+void gpio_init(void) {
+    gpio_config_t io_conf;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_INPUT;
+    io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
+    io_conf.pull_down_en = 0;
+    io_conf.pull_up_en = 1;
+    gpio_config(&io_conf);
+    ESP_LOGI(TAG, "gpio: gpio initialized");
+}
+
+bool gheck_gpio_for_factory_reset(void) {
+    if (gpio_get_level(CONFIG_FACTORY_RESET_PIN) == 1)
+        return false;
+
+    vTaskDelay(1000 / portTICK_RATE_MS);
+
+    if (gpio_get_level(CONFIG_FACTORY_RESET_PIN) == 1)
+        return false;
+        
+    ESP_LOGI(TAG, "Entering factory reset");
+
+    return true;
+}
+
+bool gheck_gpio_for_configuration_mode(void) {
+    if (gpio_get_level(CONFIG_CONFIGURATION_MODE_PIN) == 1)
+        return false;
+
+    vTaskDelay(1000 / portTICK_RATE_MS);
+
+    if (gpio_get_level(CONFIG_CONFIGURATION_MODE_PIN) == 1)
+        return false;
+        
+    ESP_LOGI(TAG, "Entering configuration mode forced by user");
+
+    return true;
+}
 
 /**
  * \brief Loads the node configuration in the node
@@ -454,6 +497,7 @@ void app_main(void) {
     pwm_init(PWM_PERIOD, duties, 3, pin_num);
     pwm_set_phases(phase);
     pwm_start();
+    gpio_init();
 
     ESP_LOGI(TAG, "Startup..");
     ESP_LOGI(TAG, "Free memory: %d bytes", esp_get_free_heap_size());
@@ -467,17 +511,18 @@ void app_main(void) {
     }
     ESP_ERROR_CHECK(ret);
 
-    reset_node_configuration();
+    if (gheck_gpio_for_factory_reset())
+        reset_node_configuration();
 
-    if (load_node_configuration()) {
-        ESP_LOGI(TAG, "entering sta conf");
-        wifi_init_sta();
-        mqtt_init();
-    } else {
-        ESP_LOGI(TAG, "entering softap conf");
+    if (!load_node_configuration() || gheck_gpio_for_configuration_mode()) {
+        ESP_LOGI(TAG, "entering softap mode");
         wifi_init_softap();
         httpd_uri_t* uris[2] = {&configuration_uri, &configuration_post_uri};
         config_web_server_init(uris, 2);
+    } else {
+        ESP_LOGI(TAG, "entering sta mode");
+        wifi_init_sta();
+        mqtt_init();
     }
     
 }
