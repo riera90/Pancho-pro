@@ -11,7 +11,7 @@
 #define TAG CONFIG_TAG
 
 
-void spiffs_init(void) { 
+void spiffs_init(void) {
     size_t total = 0, used = 0;   
     esp_vfs_spiffs_conf_t spiffs_conf = {
       .base_path = CONFIG_SPIFFS_BASE_PATH,

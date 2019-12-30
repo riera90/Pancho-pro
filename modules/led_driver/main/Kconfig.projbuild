@@ -13,15 +13,21 @@ menu "Node Configuration"
 
             config AP_WIFI_SSID
                 string "AP WiFi SSID"
-                default "myssid"
+                default "Pancho IOT node"
                 help
                     SSID (network name) for the configuration web server.
 
             config AP_WIFI_PASSWORD
                 string "AP WiFi Password"
-                default "mypassword"
+                default ""
                 help
-                    WiFi password (WPA or WPA2) for the configuration web server
+                    WiFi password (WPA or WPA2) for the configuration web server, if left empty the WiFi will be open.
+
+            config AP_WIFI_STA_CONN
+                int "max clients"
+                default 3
+                help
+                    max client connections to the AP
 
         endmenu
 
@@ -38,12 +44,6 @@ menu "Node Configuration"
                 default "mypassword"
                 help
                     WiFi password (WPA or WPA2).
-            
-            config AP_WIFI_STA_CONN
-                int "max clients"
-                default 3
-                help
-                    max client connections to the AP
 
         endmenu
 
@@ -136,4 +136,3 @@ menu "Node Configuration"
     endmenu
 
 endmenu
-

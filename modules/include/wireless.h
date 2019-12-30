@@ -107,7 +107,7 @@ void wifi_init_softap() {
 
     ESP_ERROR_CHECK(esp_event_loop_init(wifi_event_handler, NULL));
 
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();led_driver copy
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
     
