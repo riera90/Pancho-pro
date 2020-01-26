@@ -1,0 +1,18 @@
+{
+  "user_configuration_file" : "config.json",
+  "node_name" : "AlarmClock",
+  "mqtt_broker" : "mqtt.eclipse.org",
+  "mqtt_port" : 7707,
+  "mqtt_user" : "admin",
+  "mqtt_password" : "password",
+  "mqtt_qos" : 0,
+  "mqtt_topic_bed_display" : "/bedroom/bed/display",
+  "mqtt_topic_bed_button" : "/bedroom/bed/button",
+  "mqtt_topic_lights" : "/bedroom/light1,/bedroom/light2",
+  "mqtt_topoc_speakers" : "/bedroom/speakers",
+  "lights_intensity_ringing" : "1000,1000,1000",
+  "lights_intensity_snoozed" : "1000,100,50",
+  "lights_intensity_stopped" : "1000,1000,999",
+  "aemet_municipe_code" : "",
+  "aemet_api_code" : ""
+}
