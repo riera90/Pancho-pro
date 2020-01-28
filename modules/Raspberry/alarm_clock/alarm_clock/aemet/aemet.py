@@ -29,19 +29,33 @@ def get_meteo_report():
             break
 
 
-    aemet_url = 'https://opendata.aemet.es/opendata/api/prediccion/especifica/municipio/diaria/' + str(os.getenv('AEMET_MUNICIPE_CODE')) + '/?api_key=' + str(os.getenv('AEMET_API_KEY'))
-    response = requests.get(aemet_url)
-    aemet_url = response.json()["datos"]
-    response = requests.get(aemet_url)
-    response = response.json()
-    weather = response[0]['prediccion']['dia'][0]['estadoCielo'][aemet_timeperiod]['descripcion']
+    aemet_url = "https://opendata.aemet.es/opendata/api/prediccion/especifica/municipio/diaria/" + str(os.getenv('AEMET_MUNICIPE_CODE')) + "/?api_key=" + str(os.getenv('AEMET_API_KEY'))
+    try:
+        response = requests.get(aemet_url)
+        aemet_url = response.json()["datos"]
+    except Exception as e:
+        print(e)
+        return 'Weather error: api fetch'
 
-    if weather == '': # in the aemet api, a blank field in the sky description is sunny
-        weather = "soleado"
+    try:
+        response = requests.get(aemet_url)
+        response = response.json()
+    except Exception as e:
+        print(e)
+        return 'Weather error: data fetch'
 
-    rain = str(response[0]['prediccion']['dia'][0]['probPrecipitacion'][aemet_timeperiod]['value'])
+    try:
+        weather = response[0]['prediccion']['dia'][0]['estadoCielo'][aemet_timeperiod]['descripcion']
 
-    temp_min = str(response[0]['prediccion']['dia'][0]['temperatura']['minima'])
-    temp_max = str(response[0]['prediccion']['dia'][0]['temperatura']['maxima'])
+        if weather == '': # in the ae + emet api, a blank field in the sky description is sunny
+            weather = "soleado"
 
-    return weather + ", " + rain + "%\ntemp: " + temp_min + "/" + temp_max + " C"
+        rain = str(response[0]['prediccion']['dia'][0]['probPrecipitacion'][aemet_timeperiod]['value'])
+
+        temp_min = str(response[0]['prediccion']['dia'][0]['temperatura']['minima'])
+        temp_max = str(response[0]['prediccion']['dia'][0]['temperatura']['maxima'])
+
+        return weather + ", " + rain + "%\ntemp: " + temp_min + "/" + temp_max + " C"
+    except Exception as e:
+        print(e)
+        return 'Weather error: json parsing'

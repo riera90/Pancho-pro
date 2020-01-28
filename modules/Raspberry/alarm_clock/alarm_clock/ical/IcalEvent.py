@@ -37,19 +37,19 @@ class IcalEvent():
 
 
     def get_description(self):
-        return self.__description
+        return self.__description.replace('\r', '')
 
 
     def get_summary(self):
-        return self.__summary
+        return self.__summary.replace('\r', '')
 
 
     def get_location(self):
-        return self.__location
+        return self.__location.replace('\r', '')
 
 
     def get_status(self):
-        return self.__status
+        return self.__status.replace('\r', '')
 
 
     def event_is_active(self):
