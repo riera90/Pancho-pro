@@ -48,6 +48,7 @@ def check_ical_ttl():
         while True:
             event_ical = Ical.Ical(str(os.getenv('EVENTS_ICAL_URL')))
             if event_ical.is_valid():
+                print('Event ical has been actualized\nnext event is:')
                 event_ical.get_next_event().print_event()
                 break
             else:
@@ -57,7 +58,7 @@ def check_ical_ttl():
         while True:
             transport_ical = Ical.Ical(str(os.getenv('TRANSPORT_ICAL_URL')))
             if transport_ical.is_valid():
-                event_ical.get_next_event().print_event()
+                print('Transport ical has been actualized')
                 break
             else:
                 print('error fetching the ical')
@@ -69,6 +70,7 @@ def check_alarm_status():
     global event
     global transport
     global active_alarm
+    global first_alarm_of_the_day_has_rang
 
     event = event_ical.get_next_event()
     minimum_departure_time = event.get_dt_start() - timedelta(minutes=int(os.getenv('TIME_FROM_TRANSPORT_TO_EVENT')))
@@ -78,10 +80,21 @@ def check_alarm_status():
     delay_from_start_of_alarm_to_transport += timedelta(minutes=int(os.getenv('TIME_TO_STATION')))
     start_of_alarm_time = transport.get_dt_start() - delay_from_start_of_alarm_to_transport
 
-    if start_of_alarm_time < datetime.now():
-        print('activating alarm!')
-        reset_alarm_ttl()
-        active_alarm = True
+    if str(os.getenv('ONE_ALARM_PER_DAY') == 'YES'):
+        if first_alarm_of_the_day_has_rang == False and datetime.now().hour == int(os.getenv('ALARM_RESET_HOUR')):
+            first_alarm_of_the_day_has_rang = False
+
+        if first_alarm_of_the_day_has_rang == False and start_of_alarm_time < datetime.now():
+            print('activating alarm!')
+            reset_alarm_ttl()
+            active_alarm = True
+            first_alarm_of_the_day_has_rang = True
+
+    else:
+        if start_of_alarm_time < datetime.now():
+            print('activating alarm!')
+            reset_alarm_ttl()
+            active_alarm = True
 
 
 def ring():
@@ -127,6 +140,9 @@ def init():
     global snooze_ttl
     global event
     global transport
+    global first_alarm_of_the_day_has_rang
+
+    first_alarm_of_the_day_has_rang = False
 
     minimum_alarm_ttl = int(os.getenv('TIME_TO_STATION'))\
                         + int(os.getenv('TIME_TO_GET_READY'))\
@@ -152,6 +168,7 @@ def init():
         else:
             print('error fetching the ical, trying again')
 
+    event_ical.get_next_event().print_event()
     mqtt.mqtt.mqtt_init()
 
 def loop():
