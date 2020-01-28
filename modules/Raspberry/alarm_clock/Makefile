@@ -4,6 +4,6 @@ run : ./app.py setup
 
 
 .PHONY : setup
-setup : ./.venv/bin/activate
-	python3 -m virtualenv -p /usr/bin/python3 .env
+setup : 
+	python3 -m virtualenv -p /usr/bin/python3 .venv
 	./.venv/bin/python -m pip install -r requirements.txt

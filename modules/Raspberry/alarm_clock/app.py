@@ -18,10 +18,8 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
     main.init()
     while True:
-        main.loop()
-
         try:
-            pass
+            main.loop()
         except Exception as e:
             print(e)
         time.sleep(1)
