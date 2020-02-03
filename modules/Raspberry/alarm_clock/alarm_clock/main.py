@@ -3,7 +3,7 @@ from alarm_clock import mqtt
 from alarm_clock import aemet
 import os
 from datetime import datetime, timedelta
-import pprint
+
 
 def get_event():
     global event

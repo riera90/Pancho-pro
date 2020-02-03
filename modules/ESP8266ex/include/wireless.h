@@ -49,6 +49,8 @@ static EventGroupHandle_t wifi_event_group;
    to the AP with an IP? */
 const int WIFI_CONNECTED_BIT = BIT0;
 
+void wifi_post_ip_phase();
+
 
 static esp_err_t wifi_event_handler(void *ctx, system_event_t *event) {
     /* For accessing reason codes in case of disconnection */
@@ -65,6 +67,7 @@ static esp_err_t wifi_event_handler(void *ctx, system_event_t *event) {
             ESP_LOGI(TAG, "wifi: got ip:%s",
                      ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
             xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+            wifi_post_ip_phase();
             break;
 
         // node has started a connection
@@ -107,7 +110,7 @@ void wifi_init_softap() {
 
     ESP_ERROR_CHECK(esp_event_loop_init(wifi_event_handler, NULL));
 
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();led_driver copy
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
     

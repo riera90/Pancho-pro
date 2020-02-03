@@ -24,12 +24,14 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 
+
 #define TAG CONFIG_TAG
 
 char BROKER_URL[255];
 uint16_t BROKER_PORT;
 char BROKER_USER[255];
 char BROKER_PASSWORD[255];
+esp_mqtt_client_handle_t mqtt_client;
 
 /**
  * \brief Function declaration for the MQTT command/event handler for the specific node application
@@ -42,6 +44,12 @@ void command_handler(esp_mqtt_event_handle_t event);
  * \param client the MQTT client
  */
 void initialize_topic_subscriptions(esp_mqtt_client_handle_t client);
+
+/**
+ * \brief Function declaration for the MQTT post connection phase
+ * \param client the MQTT client
+ */
+void mqtt_post_connection_phase(esp_mqtt_client_handle_t client);
 
 /**
  * \brief MQTT topic subscription handler
@@ -62,6 +70,7 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event) {
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAG, "mqtt: MQTT_EVENT_CONNECTED");
             initialize_topic_subscriptions(client);
+            mqtt_post_connection_phase(client);
             break;
 
         case MQTT_EVENT_DISCONNECTED:
@@ -95,7 +104,6 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event) {
 }
 
 static void mqtt_init(void) {
-    esp_mqtt_client_handle_t client;
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = BROKER_URL,
         .port = BROKER_PORT,
@@ -111,8 +119,8 @@ static void mqtt_init(void) {
     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
     esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
 
-    client = esp_mqtt_client_init(&mqtt_cfg);
-    esp_mqtt_client_start(client);
+    mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+    esp_mqtt_client_start(mqtt_client);
 }
 
 #endif // _PANCHO_MQTT_H_

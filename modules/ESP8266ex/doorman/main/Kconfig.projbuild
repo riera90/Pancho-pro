@@ -1,0 +1,169 @@
+menu "Node Configuration"
+
+    config TAG
+        string "node tag"
+        default "door sensor"
+        help
+            A name given to the node
+
+
+    menu "Generic Node Configuration"
+
+        menu "wireless AP configuration"
+
+            config AP_WIFI_SSID
+                string "AP WiFi SSID"
+                default "Pancho IOT node"
+                help
+                    SSID (network name) for the configuration web server.
+
+            config AP_WIFI_PASSWORD
+                string "AP WiFi Password"
+                default ""
+                help
+                    WiFi password (WPA or WPA2) for the configuration web server, if left empty the WiFi will be open.
+
+            config AP_WIFI_STA_CONN
+                int "max clients"
+                default 3
+                help
+                    max client connections to the AP
+
+        endmenu
+
+        menu "wireless STA configuration"
+
+            config STA_WIFI_SSID
+                string "STA WiFi SSID"
+                default "myssid"
+                help
+                    SSID (network name).
+
+            config STA_WIFI_PASSWORD
+                string "STA WiFi Password"
+                default "mypassword"
+                help
+                    WiFi password (WPA or WPA2).
+
+        endmenu
+
+        menu "GPIO configuration"
+
+            config FACTORY_RESET_PIN
+                int "digital pin for the user factory reset button"
+                default 4
+                help
+                    digital pin for the user factory reset button
+
+            config CONFIGURATION_MODE_PIN
+                int "digital pin for the user configuration selector switch"
+                default 5
+                help
+                    digital pin for the user configuration selector switch
+
+        endmenu
+
+        menu "SPIFFS configuration"
+
+            config SPIFFS_BASE_PATH
+                string "base path for spiffs files"
+                default "/spiffs"
+                help
+                    base path for spiffs files.
+
+            config SPIFFS_CONFIG_FILE
+                string "spiff configuration file"
+                default "/spiffs/configuration.txt"
+                help
+                    full path for spiff configuration file.
+
+            config SPIFFS_MAX_FILES
+                int "Max files inside the base path"
+                default 2
+                help
+                    max munber of files in the base path of the spiffs
+
+        endmenu
+
+        menu "MQTT configuraiton"
+        
+            config BROKER_URL
+                string "Broker URL"
+                default "mqtt://iot.eclipse.org"
+                help
+                    URL of the broker to connect to
+
+            config BROKER_PORT
+                int "Broker port"
+                default 7707
+                help
+                    The port listening in the broker server
+
+            config BROKER_QOS
+                int "Broker qos"
+                default 0
+                help
+                    the broker quality of service
+
+            config BROKER_RETAIN
+                int "Broker retain flag"
+                default 0
+                help
+                    the broker retain flag
+
+            config BROKER_USER
+                string "Broker user"
+                default "admin"
+                help
+                    the broker username
+
+            config BROKER_PASSWORD
+                string "Broker password"
+                default "secret"
+                help
+                    the broker password fot the provided username
+
+        endmenu
+
+    endmenu
+
+    menu "Specific Node Configuration"
+
+        config MQTT_TOPIC
+            string "Broker topic"
+            default "/bedroom/door"
+            help
+                the topic where the node will post the door information
+
+        config MQTT_LIGHTS_TOPICS
+            string "comma separated topics of the lights"
+            default "/bedroom/led1,/bedroom/led2"
+            help
+                comma separated topics of the lights
+
+        config LIGHTS_INTENSITY_OPEN
+            string "lights intensity when door is opened"
+            default "1000,1000,1000"
+            help
+                when the door is opened, the led's will be set to this intensity
+
+        config LIGHTS_INTENSITY_CLOSE
+            string "lights intensity when door closed"
+            default "1000,100,50"
+            help
+                when the door is closed, the led's will be set to this intensity
+        
+        config HALL_EFFECT_SENSOR_PIN
+            int "digital input pin for the hall effect sensor"
+            default 16
+            help
+                digital high impedance gpio input pin for the hall effect sensor
+
+        config INVERTED_HALL_EFFECT_SENSOR_LOGIC
+            bool "inverted logic for hall effect sensor"
+            default False
+            help
+                this variable controls the interted or non inverted logic of the hall effect sensor, if your sensor normally closed on present magnetic flux, this variable should be set to false, but if your sensor is normally oppen on magned with present flux, the variable should be set to true
+    endmenu
+
+endmenu

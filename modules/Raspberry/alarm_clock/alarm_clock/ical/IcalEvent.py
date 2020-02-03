@@ -73,18 +73,18 @@ class IcalEvent():
 
         if 'TZID=Europe/Madrid' in register:
             dt = datetime.strptime(dtString, '%Y%m%dT%H%M%S\r')
-            dt = dt + timedelta(hours=0)
+            dt = dt - timedelta(hours=-1) # adust for your timezone
 
         elif 'TZID=x/x' in register:
             dt = datetime.strptime(dtString, '%Y%m%dT%H%M%S\r')
-            dt = dt + timedelta(hours=5)
+            dt = dt - timedelta(hours=5)
 
         elif 'VALUE=DATE' in register:
             pass
 
         else:
             dt = datetime.strptime(dtString, '%Y%m%dT%H%M%SZ\r')
-            dt = dt + timedelta(hours=1)
+            dt = dt - timedelta(hours=0)
 
 
         return dt

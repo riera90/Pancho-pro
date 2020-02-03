@@ -19,18 +19,16 @@
 #include "../../include/web_server.h"
 #include "../../include/reset_and_configuration.h"
 
-#include "pwm.h"
 #include "configuration.h"
 #include "web.h"
 #include "mqtt_handler.h"
 #include "wifi_hanlder.h"
+#include "gpio.h"
+
 
 #define TAG CONFIG_TAG
 
 void app_main(void) {
-    pwm_init(PWM_PERIOD, duties, 3, pin_num);
-    pwm_set_phases(phase);
-    pwm_start();
     reset_and_config_gpio_init();
 
     ESP_LOGI(TAG, "Startup..");
@@ -56,6 +54,5 @@ void app_main(void) {
     } else {
         ESP_LOGI(TAG, "entering sta mode");
         wifi_init_sta();
-        mqtt_init();
     }
 }

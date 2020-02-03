@@ -8,7 +8,7 @@
 
 #include "driver/gpio.h"
 
-#include "../../include/spiffs.h"
+#include "spiffs.h"
 
 #define TAG CONFIG_TAG
 
@@ -16,6 +16,7 @@
 #define GPIO_INPUT_PIN_SEL  (1ULL<<CONFIG_CONFIGURATION_MODE_PIN) | (1ULL<<CONFIG_FACTORY_RESET_PIN)
 
 void reset_and_config_gpio_init(void) {
+    
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_INPUT;

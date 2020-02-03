@@ -15,6 +15,10 @@
 char MQTT_SUBSCRIBED_TOPIC[255];
 
 
+void mqtt_post_connection_phase(esp_mqtt_client_handle_t client) {
+    return;
+}
+
 void command_handler(esp_mqtt_event_handle_t event) {
     char* pch;
     size_t index = 0;
