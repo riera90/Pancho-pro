@@ -1,5 +1,6 @@
 import requests, copy, os
-from datetime import datetime, timedelta
+import icalendar
+from datetime import datetime, timedelta, timezone
 from . import IcalEvent
 
 
@@ -22,7 +23,7 @@ class Ical():
         if len(self.__events) == 0:
             raise Exception('No events in the calendar')
         if origin_time is None:
-            origin_time = datetime.now()
+            origin_time = datetime.now(timezone.utc)
 
         next_events = []
         for event in self.__events:
@@ -42,6 +43,8 @@ class Ical():
     def get_previous_event(self, origin_time):
         if len(self.__events) == 0:
             raise Exception('No events in the calendar')
+        if origin_time is None:
+            origin_time = datetime.now(timezone.utc)
 
         previous_events = []
         for event in self.__events:
@@ -78,17 +81,17 @@ class Ical():
 
     def __get_parsed_ical(self):
         rawIcal = self.__get_ical()
-        events = []
-        for event in rawIcal.split('BEGIN:VEVENT')[1::]:
-            events.append(event.split('END:VEVENT')[0])
+        calendar = icalendar.Calendar.from_ical(rawIcal)
 
-        icalEvents = []
-        for event in events:
+        finalIcalEvents = []
+
+        for event in calendar.walk():
             icalEvent = IcalEvent.IcalEvent(event=event)
-            if icalEvent.get_dt_start() is not None and (datetime.now() - icalEvent.get_dt_start()) < timedelta(hours=1) and 'CONFIRMED' in icalEvent.get_status():
-                icalEvents.append(icalEvent)
+            for finalEvent in self.__get_exploded_events(icalEvent):
+                if finalEvent.is_valid():
+                    finalIcalEvents.append(finalEvent)
 
-        return icalEvents
+        return finalIcalEvents
 
 
     def print_ical(self):
@@ -97,3 +100,12 @@ class Ical():
             event.print_event()
 
 
+    def __get_exploded_events(self, event):
+        exploded_events = []
+
+        if event.get_rrule() is None:
+            exploded_events.append(event)
+            return exploded_events
+
+        exploded_events.append(event)
+        return exploded_events
