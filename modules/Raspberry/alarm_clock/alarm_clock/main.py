@@ -59,6 +59,7 @@ def check_ical_ttl():
             transport_ical = Ical.Ical(str(os.getenv('TRANSPORT_ICAL_URL')))
             if transport_ical.is_valid():
                 print('Transport ical has been actualized')
+                event_ical.get_next_event().print_event()
                 break
             else:
                 print('error fetching the ical')
@@ -168,7 +169,10 @@ def init():
         else:
             print('error fetching the ical, trying again')
 
-    event_ical.get_next_event().print_event()
+    print("\n\n\nevent")
+    event_ical.print_ical()
+    print("\n\n\ntransport")
+    transport_ical.print_ical()
     mqtt.mqtt.mqtt_init()
 
 def loop():
